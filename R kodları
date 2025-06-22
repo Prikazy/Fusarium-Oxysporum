@@ -1,0 +1,59 @@
+install.packages(“ape”)
+install.packages("phangorn") 
+ort <- read.Fasta("xxx.fasta"type=”DNA”)
+dm  <- dist.ml(ort)
+dm_df <- as.data.frame(as.matrix(dm))
+dm_df <- cbind(Sample = rownames(dm_df), dm_df)
+>openxlsx::write.xlsx(dm_df, file = "distance_matrix.xlsx", rowNames = FALSE)
+#Neighbor joining
+tree_nj <- nj(dm) 
+plot(tree_nj, main=”ağacın adı”) 
+write.tree(tree_nj, file= “dosya_adı.nwk”)
+#upgma
+treeUPGMA  <- upgma(dm)
+plot(treeUPGMA, main="UPGMA")
+write.tree(treeUPGMA, file= “dosya_adı.nwk”)
+#Maximum parsimony
+phy_data <- phyDat(alignment, type = "DNA")
+treeMP <- pratchet(phy_data)
+plot(treeMP, main = "ağaç adı")
+write.tree(treeMP, file= “dosya_adı.nwk”)
+#Mininmum Evolution
+treeME<- fastme.bal(dm)
+plot(treeME, main = "ağaç adı")
+write.tree(treeME, file= “dosya_adı.nwk”)
+#Maximum Likelihood
+ml_model <- pml(tree = tree_nj, data = phy_data)
+ml_model <- optim.pml(ml_model, model = "HKY")
+plot(ml_model$tree, main = "ağaçadı")
+write.tree(ml_model$tree, file = "dosya_adı.nwk")
+#Pca
+> ort = read.phyDat('dosya_adı.phy')
+> dm = dist.ml(ort)
+> View(dm)
+> xlsx::write.xlsx(as.matrix(dm), 'distance_for_31.xlsx')
+> pca = prcomp(dm, scale = TRUE)
+> xlsx::write.xlsx(pca$x, 'pcafor31.xlsx')
+> str(pca)
+distinct_colors_50 <- c(
+  "#E6194B", "#3CB44B", "#4363D8", "#F58231", "#911EB4",
+  "#46F0F0", "#F032E6", "#BCF60C", "#FABEBE", "#008080",
+  "#E6BEFF", "#9A6324", "#FFD8B1", "#000075", "#808000",
+  "#A9A9A9", "#FF69B4", "#B22222", "#FF4500", "#008000",
+  "#20B2AA", "#87CEFA", "#7B68EE", "#6A5ACD", "#00CED1",
+  "#228B22", "#B8860B", "#FF6347", "#DA70D6", "#FF1493",
+  "#2E8B57", "#ADFF2F", "#9932CC", "#FF8C00", "#FF00FF",
+  "#FF0000", "#40E0D0", "#6495ED", "#8B0000", "#FF7F50",
+  "#4169E1", "#DC143C", "#00FF00", "#00BFFF", "#800000",
+  "#CD5C5C", "#4B0082", "#FFDEAD", "#00FA9A", "#7FFF00"
+)
+fviz_pca_ind(pca,
+             geom.ind = "point",       # sadece noktalar
+             col.ind = ct,          # grup bazlı renk
+             palette =colors_50,  # Renk ayarı
+             pointshape = 19,          # Dolu daire
+             label = "none",           # Etiket gösterme
+             repel = TRUE) + 
+  ggtitle("Principal Component Analysis") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))  # Başlık ortada
