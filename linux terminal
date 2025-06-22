@@ -1,0 +1,42 @@
+mafft --auto xxx.fasta > xxxxhiza.fasta  #sekans hizalama
+grep ">" hizalanmis.fasta | awk '{print $1}' | sed 's/>//' > ids.txt # terminalden fasta dosyalarının erişim numaraları txt dosyası yapma
+cat ids.txt | while read id; do efetch -db nucleotide -id $id -format gb >> indirilen_kayitlar.gb; sleep 0.5; done # genbank dosyaları
+sudo apt update
+sudo apt install python3 python3-pip
+sudo apt update
+sudo apt install python3-pip
+pip3 install biopython pandas openpyxl
+nano exceltablo.py
+from Bio import SeqIO
+import pandas as pd
+# GenBank dosyasını oku
+genbank_file = "indirilen_kayitlar.gb"
+records = list(SeqIO.parse(genbank_file, "genbank"))
+# Bilgileri toplayacağımız boş liste
+all_data = []
+all_keys = set()
+# Önce hangi feature'lar var onları toplayalım
+for record in records:
+ for feature in record.features:
+if feature.type == "source":
+for key in feature.qualifiers.keys():
+all_keys.add(key)
+# Sütunları sabitleyelim
+all_keys = sorted(list(all_keys))
+columns = ["Accession_No"] + all_keys
+# Şimdi her kayıt için bilgileri doğru yerlere yaz
+for record in records:
+row = {key: "" for key in columns}  
+row["Accession_No"] = record.id
+for feature in record.features:
+if feature.type == "source":
+for key in feature.qualifiers:
+if key in all_keys:
+row[key] = feature.qualifiers[key][0]  # Doğru eşleşme
+break 
+all_data.append(row)
+# DataFrame'e aktar
+df = pd.DataFrame(all_data, columns=columns)
+# Excel dosyasına kaydet
+df.to_excel("source_bilgileri_dogrulanmis.xlsx", index=False)
+print("\n✅ DÜZGÜN: 'source_bilgileri_dogrulanmis.xlsx' dosyası oluşturuldu.\n")
