@@ -1,0 +1,51 @@
+#TRİMAL KOMUTLARI
+sudo apt update
+conda install -c bioconda trimal
+#clustalw ile fasta formatındaki dosyanı hizala ve .fasta olarak export et
+
+
+# emir
+trimal -in clustalw.fasta -out trimmed_clustalw.fasta -gt 0.99 
+#bu şekilde yapılınca %99 benzerlik isteniyor ve örnek seçimine göre nerdeyse hiç gap olmuyor 
+
+
+
+#oto gt değer seçimi
+trimal -in clustalw.fasta -out aligned.fasta -automated1
+	cat clustalw.fasta
+	cat aligned.fasta
+trimal -in aligned.fasta -out yeni_aligned.phy -phylip
+
+#conda ortam oluşturma ve iqtree ,mrbayes kurma
+conda create -n phylo -c conda-forge -c bioconda iqtree mrbayes -y
+conda activate phylo
+
+ # IQ-TREE sürümünü kontrol et
+iqtree2 --version
+
+# MrBayes’i aç
+mb
+#mrbayes kapama
+quit
+
+
+#İQTREE KOMUTLARI
+
+iqtree -s dosyaadi.phy
+    en iyi BIC modelini seç
+iqtree -s dosyaadi.phy -m GTR+I+G -bb 1000 -redo
+    #tree dosyasini .tre'ye çevir ve figtree ile düzenle
+
+
+
+#MRBAYES KOMUTLARI
+
+
+mb
+execute sample.nex #dosyayı yükleme
+lset nst=6 rates=invgamma #model yöntem seçimi
+mcmc ngen=100000 samplefreq=100 #kaç jenerasyon yürütülsün ve kaç jenerasyonda bir kontrol edilsin
+no
+sump # Özet istatistikler (posterior distrib.) çıkar
+sumt  # Konsensus ağaç oluştur ve kaydet
+quit
